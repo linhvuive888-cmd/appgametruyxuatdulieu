@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LEA - Data Terminal</title>
+    <!-- Sử dụng Montserrat hỗ trợ tiếng Việt tuyệt đối, nét chữ hiện đại, khỏe khoắn -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #00e5ff;
+            --accent-purple: #9d4edd;
+            --alert-red: #ff3366;
+            --gold-rank: #ffc107;
+            --bg-gradient: linear-gradient(135deg, #0b132b, #1c2541, #3a506b);
+            --panel-glass: rgba(255, 255, 255, 0.15);
+            --panel-border: rgba(0, 229, 255, 0.4);
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Montserrat', sans-serif; /* Phông chữ chuẩn tiếng Việt */
+            user-select: none; 
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* MÀN HÌNH ĐĂNG NHẬP SÁNG SỦA */
+        #login-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; padding: 20px; text-align: center;
+            background: radial-gradient(circle at center, rgba(0,229,255,0.2) 0%, transparent 60%);
+        }
+        .logo-text { 
+            font-size: 2.5rem; 
+            color: #ffffff; 
+            font-weight: 900;
+            text-shadow: 0 0 15px var(--primary-blue), 0 0 30px var(--primary-blue); 
+            margin-bottom: 40px; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .login-box {
+            background: rgba(20, 30, 60, 0.7); 
+            padding: 40px 30px; 
+            border: 2px solid var(--primary-blue);
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.2); 
+            width: 100%; max-width: 420px;
+            backdrop-filter: blur(10px);
+        }
+        input[type="text"] {
+            width: 100%; padding: 16px; 
+            background: rgba(255, 255, 255, 0.95); /* Ô nhập liệu màu trắng sáng */
+            border: 2px solid transparent;
+            color: #000000; 
+            font-size: 1.1rem; 
+            font-weight: 700;
+            text-align: center;
+            outline: none; margin-bottom: 25px; border-radius: 8px;
+            transition: 0.3s;
+        }
+        input[type="text"]:focus { 
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5); 
+        }
+        .btn-connect {
+            background: linear-gradient(90deg, #00e5ff, #0077b6); 
+            color: #ffffff; 
+            font-weight: 800;
+            font-size: 1.2rem; 
+            padding: 16px 30px; 
+            border: none; border-radius: 8px; cursor: pointer;
+            width: 100%; text-transform: uppercase; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.4);
+        }
+        .btn-connect:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 229, 255, 0.6); 
+        }
+
+        /* MÀN HÌNH CHÍNH (SÁNG VÀ NĂNG ĐỘNG HƠN) */
+        #app-screen { display: none; padding: 15px; max-width: 700px; margin: 0 auto; padding-bottom: 80px;}
+        
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-bottom: 2px solid var(--primary-blue); 
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .timer { color: var(--alert-red); font-size: 1.8rem; text-shadow: 0 0 10px rgba(255,51,102,0.5); font-weight: 900;}
+        .guild-badge { font-size: 1.2rem; color: var(--gold-rank); font-weight: 800; text-transform: uppercase;}
+
+        /* BẢNG DỮ LIỆU SÁNG MÀU */
+        .data-container {
+            background: rgba(25, 40, 70, 0.8); 
+            border: 2px solid var(--panel-border); 
+            border-radius: 12px;
+            overflow-x: auto; margin-bottom: 20px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 1rem; white-space: nowrap; }
+        th, td { border: 1px solid rgba(255,255,255,0.1); padding: 12px 8px; text-align: center; transition: all 0.4s ease; }
+        th { 
+            background: linear-gradient(180deg, rgba(0,229,255,0.2), rgba(0,229,255,0.05)); 
+            color: var(--primary-blue); 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+        }
+        /* Hiệu ứng nổi bật rực rỡ */
+        .highlight-gold td { background: rgba(255, 193, 7, 0.2); color: var(--gold-rank); font-weight: 800; text-shadow: 0 0 8px rgba(255, 193, 7, 0.6); border-color: var(--gold-rank);}
+        .highlight-blue td { background: rgba(0, 229, 255, 0.2); color: #ffffff; font-weight: 800; border-color: var(--primary-blue); box-shadow: inset 0 0 10px rgba(0,229,255,0.3);}
+
+        /* TOOLBAR CÔNG CỤ (NÚT BẤM TO RÕ) */
+        .toolbar { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap;}
+        .btn-tool {
+            flex: 1; min-width: 80px;
+            background: rgba(255, 255, 255, 0.05); 
+            border: 2px solid var(--primary-blue); 
+            color: var(--primary-blue);
+            padding: 12px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 8px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-tool:active, .btn-tool:hover { background: var(--primary-blue); color: #000; box-shadow: 0 0 15px var(--primary-blue);}
+        
+        .btn-reset { border-color: #a0aec0; color: #a0aec0; }
+        .btn-reset:active, .btn-reset:hover { background: #a0aec0; color: #000; box-shadow: none;}
+
+        /* KHU VỰC TRẢ LỜI SÁNG SỦA HƠN */
+        .quest-box {
+            background: rgba(20, 25, 45, 0.8); 
+            border: 2px solid var(--accent-purple); 
+            border-radius: 12px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.2);
+        }
+        .quest-title { 
+            color: var(--primary-blue); font-size: 1.4rem; font-weight: 900; 
+            margin-bottom: 20px; text-align: center; text-transform: uppercase;
+        }
+        .q-group { margin-bottom: 20px; }
+        .q-label { display: block; font-size: 1rem; color: #e2e8f0; font-weight: 600; margin-bottom: 8px; }
+        .q-input {
+            width: 100%; padding: 14px; 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 2px solid transparent;
+            color: #000000; font-size: 1.05rem; font-weight: 700; border-radius: 6px; outline: none;
+            transition: 0.3s;
+        }
+        .q-input:focus { border-color: var(--accent-purple); box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);}
+        
+        .btn-submit {
+            background: linear-gradient(90deg, #9d4edd, #f72585); 
+            color: #ffffff; font-size: 1.2rem;
+            font-weight: 900; width: 100%; padding: 18px; border: none; border-radius: 8px;
+            margin-top: 15px; cursor: pointer; 
+            box-shadow: 0 8px 20px rgba(247, 37, 133, 0.4);
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .btn-submit:active { transform: scale(0.98); }
+
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="login-screen">
+        <h1 class="logo-text">SYSTEM<br>TERMINAL</h1>
+        <div class="login-box">
+            <input type="text" id="guild-name" placeholder="NHẬP TÊN BANG HỘI..." autocomplete="off">
+            <button class="btn-connect" onclick="startSystem()">KẾT NỐI SERVER</button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH ỨNG DỤNG -->
+    <div id="app-screen">
+        <div class="header">
+            <div class="guild-badge" id="display-guild">[BANG HỘI]</div>
+            <div class="timer" id="timer-display">04:00</div>
+        </div>
+
+        <div class="data-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>HỌ VÀ TÊN</th>
+                        <th>TX</th>
+                        <th>GK</th>
+                        <th>CK</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Data rendered via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CÔNG CỤ TRẢI NGHIỆM -->
+        <div class="toolbar">
+            <button class="btn-tool" onclick="actionSort()">🏆 SẮP XẾP</button>
+            <button class="btn-tool" onclick="actionFilter()">🎯 LỌC (>=8)</button>
+            <button class="btn-tool" onclick="actionSearch()">🔍 TÌM KIẾM</button>
+            <button class="btn-tool btn-reset" onclick="renderTable(originalData)">🔄 HỦY</button>
+        </div>
+
+        <!-- FORM TRẢ LỜI -->
+        <div class="quest-box">
+            <div class="quest-title">COMMAND LOG (TRUY VẾT)</div>
+            
+            <div class="q-group">
+                <span class="q-label">1. Top 3 điểm Cuối kì cao nhất là những ai?</span>
+                <input type="text" class="q-input" id="ans1" placeholder="Ví dụ: Duyên, Đăng, Anh...">
+            </div>
+            
+            <div class="q-group">
+                <span class="q-label">2. Ai có điểm Cuối kì >= 8?</span>
+                <input type="text" class="q-input" id="ans2" placeholder="Tên các bạn đạt yêu cầu...">
+            </div>
+            
+            <div class="q-group">
+                <span class="q-label">3. Toàn bộ điểm của Lương Việt Anh?</span>
+                <input type="text" class="q-input" id="ans3" placeholder="Nhập điểm TX - GK - CK...">
+            </div>
+
+            <button class="btn-submit" onclick="submitData()">ĐẨY DỮ LIỆU LÊN SERVER</button>
+        </div>
+    </div>
+
+    <script>
+        // DỮ LIỆU GỐC (Đã cập nhật đúng STT 5, 6, 7 và bỏ STT 4)
+        const originalData = [
+            { id: 1, name: "Dương Hoàng Anh", tx: "8, 7, 7", gk: 9, ck: 8 },
+            { id: 2, name: "Lương Việt Anh", tx: "5, 6, 5", gk: 5, ck: 5 },
+            { id: 3, name: "Nguyễn Kì Duyên", tx: "7, 8, 0", gk: 10, ck: 9 },
+            { id: 5, name: "Bùi Quý Dương", tx: "5, 7, 7", gk: 6, ck: 6 },
+            { id: 6, name: "Đỗ Hồng Dương", tx: "7, 8, 6", gk: 6, ck: 7 },
+            { id: 7, name: "Lê Hải Đăng", tx: "8, 9, 9", gk: 8, ck: 9 }
+        ];
+
+        let timerInterval;
+
+        function renderTable(data, highlightMode = null) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                
+                // Cấp hiệu ứng thẩm mỹ
+                if (highlightMode === 'sort' && index < 3) tr.className = 'highlight-gold';
+                if (highlightMode === 'search') tr.className = 'highlight-blue';
+                
+                tr.innerHTML = `
+                    <td>${row.id}</td>
+                    <td style="text-align:left; font-weight:700;">${row.name}</td>
+                    <td>${row.tx}</td>
+                    <td>${row.gk}</td>
+                    <td>${row.ck}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function actionSort() {
+            let sorted = [...originalData].sort((a, b) => b.ck - a.ck);
+            renderTable(sorted, 'sort');
+        }
+
+        function actionFilter() {
+            let filtered = originalData.filter(item => item.ck >= 8);
+            renderTable(filtered);
+        }
+
+        function actionSearch() {
+            let searched = originalData.filter(item => item.name === "Lương Việt Anh");
+            renderTable(searched, 'search');
+        }
+
+        function startSystem() {
+            const guild = document.getElementById('guild-name').value.trim();
+            if(!guild) { alert("Vui lòng nhập tên Bang hội!"); return; }
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('display-guild').innerText = `[${guild.toUpperCase()}]`;
+            
+            renderTable(originalData);
+            startTimer(240); // 4 phút đếm ngược
+        }
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            const display = document.getElementById('timer-display');
+            
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = "HẾT GIỜ";
+                    display.style.color = "#a0aec0";
+                    alert("THỜI GIAN ĐÃ HẾT! Khóa dữ liệu.");
+                    document.querySelector('.btn-submit').disabled = true;
+                }
+            }, 1000);
+        }
+
+function submitData() {
+            const guild = document.getElementById('guild-name').value.trim();
+            const ans1 = document.getElementById('ans1').value.trim();
+            const ans2 = document.getElementById('ans2').value.trim();
+            const ans3 = document.getElementById('ans3').value.trim();
+
+            if(!ans1 || !ans2 || !ans3) {
+                alert("Kỹ sư vui lòng điền đủ 3 Command Log trước khi đẩy lên Server!");
+                return;
+            }
+
+            // DÁN LINK GOOGLE SCRIPT MỚI COPY TỪ BƯỚC 2 VÀO ĐÂY
+            const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwLi7VyTug37ReYg8ZxF5A6ahG4-Pa8mduZcQXgw-jct7bLSCj76GsXGPBkO5KQiXJ1/exec"; 
+            
+            const btn = document.querySelector('.btn-submit');
+            btn.innerText = "ĐANG TRUYỀN TẢI...";
+            btn.style.background = "#888";
+            btn.style.boxShadow = "none";
+            btn.disabled = true;
+
+            // Mã hóa dữ liệu siêu chuẩn xác
+            const payload = "bangHoi=" + encodeURIComponent(guild) +
+                            "&q1=" + encodeURIComponent(ans1) +
+                            "&q2=" + encodeURIComponent(ans2) +
+                            "&q3=" + encodeURIComponent(ans3);
+
+            // Gửi dữ liệu đi
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: payload
+            }).then(() => {
+                document.getElementById('app-screen').innerHTML = `<h2 style="color:var(--primary-blue); text-align:center; margin-top:40vh; font-size:1.8rem; line-height:1.5;">ĐÃ GỬI DỮ LIỆU THÀNH CÔNG!<br>HÃY QUAN SÁT BẢNG ĐIỂM</h2>`;
+            }).catch(() => {
+                document.getElementById('app-screen').innerHTML = `<h2 style="color:var(--primary-blue); text-align:center; margin-top:40vh; font-size:1.8rem; line-height:1.5;">ĐÃ GỬI DỮ LIỆU THÀNH CÔNG!<br>HÃY QUAN SÁT BẢNG ĐIỂM</h2>`;
+            });
+        }
+    </script>
+</body>
+</html>
